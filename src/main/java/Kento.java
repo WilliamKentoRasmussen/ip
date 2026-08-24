@@ -105,17 +105,3 @@ public class Kento {
         }
     }
 }
-
-/*
- * Level-1, Level-2, Level-3, A-CodingStandard
- * 
- * Bye.Hope to
- * see you
- * again soon!
- * switch (cmd){
- * switch("list"):
- * System.out.print("");
- * break;
- * }
- * ____________________________________________________________
- */
