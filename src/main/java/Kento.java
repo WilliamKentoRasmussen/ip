@@ -23,12 +23,34 @@ public class Kento {
         System.out.println(greeting);
 
         Scanner in = new Scanner(System.in);
-
-        String cmd;
+        String task;
+        String secondArg;
+        String argsCLI;
+        String[] argsCLIArr;
+        Task[] tasks = new Task[100];
+        int taskIdx = 0;
         while (running) {
-            cmd = in.nextLine();
+            argsCLI = in.nextLine();
+            argsCLIArr = argsCLI.split(" ");
+            Task t;
 
-            switch (cmd.toLowerCase()) {
+            switch (argsCLIArr.length) {
+                case (0):
+                    task = "";
+                    secondArg = "";
+                    break;
+                case (1):
+                    task = argsCLIArr[0];
+                    secondArg = " ";
+                    break;
+
+                default:
+                    task = argsCLIArr[0];
+                    secondArg = argsCLIArr[1];
+            }
+
+            switch (task.toLowerCase()) {
+
                 case ("bye"):
                     System.out.print("""
                             ____________________________________________________________
@@ -38,15 +60,48 @@ public class Kento {
                     running = false;
                     break;
 
+                case ("list"):
+                    System.out.println("____________________________________________________________");
+
+                    for (int i = 0; i < taskIdx; i++) {
+                        System.out.println(Integer.toString(i + 1) + ". [" + tasks[i].getStatusIcon() + "]"
+                                + tasks[i].getDescription());
+                    }
+                    System.out.println("____________________________________________________________");
+                    break;
+
+                case ("mark"):
+                    System.out.println(
+                            "____________________________________________________________");
+
+                    t = tasks[Integer.parseInt(secondArg)];
+                    t.setIsDone(true);
+                    System.out.println("Marked task\n[" + t.getStatusIcon() + "] " + t.getDescription());
+                    System.out.println("____________________________________________________________");
+                    break;
+
+                case ("unmark"):
+                    System.out.println(
+                            "____________________________________________________________");
+
+                    t = tasks[Integer.parseInt(secondArg)];
+                    t.setIsDone(false);
+                    System.out.println("Unmarked task\n[" + t.getStatusIcon() + "] " + t.getDescription());
+                    System.out.println("____________________________________________________________");
+                    break;
+
                 default:
                     System.out.print(String.format("""
 
                             ____________________________________________________________
                             %s
                             ____________________________________________________________
-                                            """, cmd));
+                                            """, task));
+                    tasks[taskIdx] = new Task(task);
+                    taskIdx++;
                     break;
             }
+
         }
     }
 }
