@@ -74,7 +74,7 @@ public class Kento {
                     System.out.println(
                             "____________________________________________________________");
 
-                    t = tasks[Integer.parseInt(secondArg)];
+                    t = tasks[Integer.parseInt(secondArg) - 1];
                     t.setIsDone(true);
                     System.out.println("Marked task\n[" + t.getStatusIcon() + "] " + t.getDescription());
                     System.out.println("____________________________________________________________");
