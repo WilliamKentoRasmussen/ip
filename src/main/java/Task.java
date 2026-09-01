@@ -1,7 +1,7 @@
 public class Task {
 
     private boolean isDone;
-    private String description;
+    protected String description; // Protected give children access to the description
 
     public Task(String description) {
         this.description = description;
@@ -18,6 +18,10 @@ public class Task {
 
     public String getStatusIcon() {
         return (isDone ? "X" : " "); // mark done task with X
+    }
+
+    public String getTaskIcon() {
+        return "T";
     }
 
     public String getDescription() {
