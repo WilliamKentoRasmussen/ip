@@ -1,4 +1,5 @@
 import java.util.Scanner;
+import java.util.Arrays;
 
 public class Kento {
     private static String cmd;
@@ -8,12 +9,21 @@ public class Kento {
     private static String[] argsCLIArr;
     private static String[] argsCLIArrSlash;
 
+    // Colors
+    public static final String ANSI_RESET = "\u001B[0m";
+    public static final String ANSI_RED = "\u001B[31m";
+    public static final String ANSI_GREEN = "\u001B[32m";
+    public static final String ANSI_YELLOW = "\u001B[33m";
+    public static final String ANSI_BLUE = "\u001B[34m";
+    public static final String ANSI_CYAN = "\u001B[36m";
+
     private static final int MAX_TASKS = 100;
 
     private static Task[] tasks = new Task[MAX_TASKS];
     private static Task t;
 
     private static int taskIdx = 0;
+    private static int inputTaskIdx = 0;
 
     private static boolean isRunning = true;
 
@@ -24,14 +34,42 @@ public class Kento {
         Scanner in = new Scanner(System.in);
 
         while (isRunning) {
+            try {
+                parseCLI(in); // TODO: Make safeguards
+                executeCmd();
+            } catch (CommandException e) {
 
-            parseCLI(in); // TODO: Make safeguards
-            executeCmd();
+                System.out.print(ANSI_RED + """
+                        ____________________________________________________________
+                         OOPSI!!! That command is so wrong. Please do better!
+                        ____________________________________________________________
+                                        """ + ANSI_RESET);
+            } catch (TodoException e) {
+
+                System.out.print(ANSI_RED + """
+                        ____________________________________________________________
+                        c'mon man. Your todo command is missing a description!
+                        ____________________________________________________________
+                                        """ + ANSI_RESET);
+            } catch (IndexOutOfBoundsException e) {
+                System.out.print(ANSI_RED + """
+                        ____________________________________________________________
+                         Out of bounds error: Please provide an task index or a valid date.
+                        ____________________________________________________________
+                                        """ + ANSI_RESET);
+            } catch (NumberFormatException e) {
+
+                System.out.print(ANSI_RED + """
+                        ____________________________________________________________
+                         Please provide a passable number instead of string.
+                        ____________________________________________________________
+                                        """ + ANSI_RESET);
+            }
 
         }
     }
 
-    private static void parseCLI(Scanner in) {
+    private static void parseCLI(Scanner in) throws CommandException {
         // TODO: Make a parser class
         argsCLI = in.nextLine();
         argsCLIArr = argsCLI.split(" ");
@@ -39,9 +77,7 @@ public class Kento {
 
         switch (argsCLIArr.length) {
             case (0):
-                cmd = "";
-                secondArg = "";
-                break;
+                throw new CommandException();
             case (1):
                 cmd = argsCLIArr[0];
                 secondArg = " ";
@@ -51,9 +87,12 @@ public class Kento {
                 cmd = argsCLIArr[0];
                 secondArg = argsCLIArr[1];
         }
+
+        if ((cmd.length()) == (0))
+            throw new CommandException();
     }
 
-    private static void executeCmd() {
+    private static void executeCmd() throws TodoException {
         switch (cmd.toLowerCase()) {
 
             case ("bye"):
@@ -96,7 +135,6 @@ public class Kento {
                 ____________________________________________________________
                                 """);
         isRunning = false;
-
     }
 
     private static void cmdList() {
@@ -110,21 +148,28 @@ public class Kento {
 
     }
 
-    private static void cmdMark() {
+    private static void cmdMark() throws IndexOutOfBoundsException {
         System.out.println(
                 "____________________________________________________________");
 
-        t = tasks[Integer.parseInt(secondArg) - 1];
+        inputTaskIdx = Integer.parseInt(secondArg) - 1;
+        if (inputTaskIdx >= taskIdx)
+            throw new IndexOutOfBoundsException();
+        t = tasks[inputTaskIdx];
         t.setIsDone(true);
         System.out.println("Marked task\n[" + t.getStatusIcon() + "] " + t.getDescription());
         System.out.println("____________________________________________________________");
     }
 
-    private static void cmdUnmark() {
+    private static void cmdUnmark() throws IndexOutOfBoundsException {
         System.out.println(
                 "____________________________________________________________");
 
-        t = tasks[Integer.parseInt(secondArg) - 1];
+        inputTaskIdx = Integer.parseInt(secondArg) - 1;
+        if (inputTaskIdx >= taskIdx)
+            throw new IndexOutOfBoundsException();
+
+        t = tasks[inputTaskIdx];
         t.setIsDone(false);
         System.out.println("Unmarked task\n[" + t.getStatusIcon() + "] " + t.getDescription());
         System.out.println("____________________________________________________________");
@@ -137,8 +182,10 @@ public class Kento {
         taskIdx++;
     }
 
-    private static void cmdTodo() {
+    private static void cmdTodo() throws TodoException {
         task = argsCLI.substring(5).strip();
+        if (task.length() == 0)
+            throw new TodoException();
         tasks[taskIdx] = new Todo(task);
         taskIdx++;
     }
