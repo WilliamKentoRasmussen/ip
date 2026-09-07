@@ -34,39 +34,44 @@ public class Kento {
         Scanner in = new Scanner(System.in);
 
         while (isRunning) {
-            try {
-                parseCLI(in); // TODO: Make safeguards
-                executeCmd();
-            } catch (CommandException e) {
-
-                System.out.print(ANSI_RED + """
-                        ____________________________________________________________
-                         OOPSI!!! That command is so wrong. Please do better!
-                        ____________________________________________________________
-                                        """ + ANSI_RESET);
-            } catch (TodoException e) {
-
-                System.out.print(ANSI_RED + """
-                        ____________________________________________________________
-                        c'mon man. Your todo command is missing a description!
-                        ____________________________________________________________
-                                        """ + ANSI_RESET);
-            } catch (IndexOutOfBoundsException e) {
-                System.out.print(ANSI_RED + """
-                        ____________________________________________________________
-                         Out of bounds error: Please provide an task index or a valid date.
-                        ____________________________________________________________
-                                        """ + ANSI_RESET);
-            } catch (NumberFormatException e) {
-
-                System.out.print(ANSI_RED + """
-                        ____________________________________________________________
-                         Please provide a passable number instead of string.
-                        ____________________________________________________________
-                                        """ + ANSI_RESET);
-            }
+            runKentoWithErrorHandling(in);
 
         }
+    }
+
+    private static void runKentoWithErrorHandling(Scanner in) {
+        try {
+            parseCLI(in);
+            executeCmd();
+        } catch (CommandException e) {
+
+            System.out.print(ANSI_RED + """
+                    ____________________________________________________________
+                     OOPSI!!! That command is so wrong. Please do better!
+                    ____________________________________________________________
+                                    """ + ANSI_RESET);
+        } catch (TodoException e) {
+
+            System.out.print(ANSI_RED + """
+                    ____________________________________________________________
+                    c'mon man. Your todo command is missing a description!
+                    ____________________________________________________________
+                                    """ + ANSI_RESET);
+        } catch (IndexOutOfBoundsException e) {
+            System.out.print(ANSI_RED + """
+                    ____________________________________________________________
+                     Out of bounds error: Please provide an task index or a valid date.
+                    ____________________________________________________________
+                                    """ + ANSI_RESET);
+        } catch (NumberFormatException e) {
+
+            System.out.print(ANSI_RED + """
+                    ____________________________________________________________
+                     Please provide a passable number instead of string.
+                    ____________________________________________________________
+                                    """ + ANSI_RESET);
+        }
+
     }
 
     private static void parseCLI(Scanner in) throws CommandException {
