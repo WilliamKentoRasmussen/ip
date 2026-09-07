@@ -1,4 +1,14 @@
+package kento.ui;
+
 import java.util.Scanner;
+
+import kento.commands.Deadline;
+import kento.commands.Event;
+import kento.commands.Task;
+import kento.commands.Todo;
+import kento.exception.CommandException;
+import kento.exception.TodoException;
+
 import java.util.Arrays;
 
 public class Kento {

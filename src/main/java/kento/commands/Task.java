@@ -1,3 +1,5 @@
+package kento.commands;
+
 public class Task {
 
     private boolean isDone;
