@@ -9,6 +9,7 @@ import kento.commands.Todo;
 import kento.exception.CommandException;
 import kento.exception.TodoException;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 
 public class Kento {
@@ -30,12 +31,10 @@ public class Kento {
     public static final String ANSI_BLUE = "\u001B[34m";
     public static final String ANSI_CYAN = "\u001B[36m";
 
-    private static final int MAX_TASKS = 100;
+    private static ArrayList<Task> tasks = new ArrayList<>();
 
-    private static Task[] tasks = new Task[MAX_TASKS];
     private static Task t;
 
-    private static int taskIdx = 0;
     private static int inputTaskIdx = 0;
 
     private static boolean isRunning = true;
@@ -120,6 +119,10 @@ public class Kento {
                 executeCmdList();
                 break;
 
+            case "delete":
+                executeCmdDelete();
+                break;
+
             case "mark":
                 executeCmdMark();
                 break;
@@ -158,13 +161,28 @@ public class Kento {
     private static void executeCmdList() {
         System.out.println("____________________________________________________________\n");
 
-        // TODO: Move to commands classes tostring.
-        for (int i = 0; i < taskIdx; i++) {
-            System.out.println(Integer.toString(i + 1) + ". [" + tasks[i].getStatusIcon() + "]"
-                    + tasks[i].getDescription());
+        int i = 0;
+        for (Task task : tasks) {
+            i++;
+            // TODO: Move to commands classes tostring.
+            System.out.println(Integer.toString(i) + ". [" + task.getStatusIcon() + "]"
+                    + task.getDescription());
         }
         System.out.println("____________________________________________________________");
 
+    }
+
+    private static void executeCmdDelete() throws IndexOutOfBoundsException {
+        System.out.println(PAGE_LINE);
+
+        inputTaskIdx = Integer.parseInt(secondArg) - 1;
+        if (inputTaskIdx >= tasks.size())
+            throw new IndexOutOfBoundsException();
+        t = tasks.get(inputTaskIdx);
+
+        System.out.println("Removed \n[" + t.getStatusIcon() + "] " + t.getDescription());
+        tasks.remove(inputTaskIdx);
+        System.out.println(PAGE_LINE);
     }
 
     private static void executeCmdMark() throws IndexOutOfBoundsException {
@@ -172,9 +190,9 @@ public class Kento {
                 "____________________________________________________________");
 
         inputTaskIdx = Integer.parseInt(secondArg) - 1;
-        if (inputTaskIdx >= taskIdx)
+        if (inputTaskIdx >= tasks.size())
             throw new IndexOutOfBoundsException();
-        t = tasks[inputTaskIdx];
+        t = tasks.get(inputTaskIdx);
         t.setIsDone(true);
         System.out.println("Marked task\n[" + t.getStatusIcon() + "] " + t.getDescription());
         System.out.println("____________________________________________________________");
@@ -185,10 +203,10 @@ public class Kento {
                 "____________________________________________________________");
 
         inputTaskIdx = Integer.parseInt(secondArg) - 1;
-        if (inputTaskIdx >= taskIdx)
+        if (inputTaskIdx >= tasks.size())
             throw new IndexOutOfBoundsException();
 
-        t = tasks[inputTaskIdx];
+        t = tasks.get(inputTaskIdx);
         t.setIsDone(false);
         System.out.println("Unmarked task\n[" + t.getStatusIcon() + "] " + t.getDescription());
         System.out.println("____________________________________________________________");
@@ -197,24 +215,21 @@ public class Kento {
     private static void executeCmdDeadline() {
         task = argsCliArrSlash[0].substring(9).strip();
         String by = argsCliArrSlash[1].substring(2).strip();
-        tasks[taskIdx] = new Deadline(task, by);
-        taskIdx++;
+        tasks.add(new Deadline(task, by));
     }
 
     private static void executeCmdTodo() throws TodoException {
         task = argsCLI.substring(5).strip();
         if (task.length() == 0)
             throw new TodoException();
-        tasks[taskIdx] = new Todo(task);
-        taskIdx++;
+        tasks.add(new Todo(task));
     }
 
     private static void executeCmdEvent() {
         task = argsCliArrSlash[0].substring(6).strip();
         String from = argsCliArrSlash[1].substring(4).strip();
         String to = argsCliArrSlash[2].substring(2).strip();
-        tasks[taskIdx] = new Event(task, from, to);
-        taskIdx++;
+        tasks.add(new Event(task, from, to));
     }
 
     private static void kentoGreeting() {
