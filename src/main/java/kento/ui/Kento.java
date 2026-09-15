@@ -16,8 +16,11 @@ public class Kento {
     private static String task;
     private static String secondArg;
     private static String argsCLI;
-    private static String[] argsCLIArr;
-    private static String[] argsCLIArrSlash;
+    private static String[] argsCliArr;
+    private static String[] argsCliArrSlash;
+
+    // Prints
+    public static final String PAGE_LINE = "____________________________________________________________";
 
     // Colors
     public static final String ANSI_RESET = "\u001B[0m";
@@ -87,20 +90,20 @@ public class Kento {
     private static void parseCLI(Scanner in) throws CommandException {
         // TODO: Make a parser class
         argsCLI = in.nextLine();
-        argsCLIArr = argsCLI.split(" ");
-        argsCLIArrSlash = argsCLI.split("/");
+        argsCliArr = argsCLI.split(" ");
+        argsCliArrSlash = argsCLI.split("/");
 
-        switch (argsCLIArr.length) {
+        switch (argsCliArr.length) {
             case (0):
                 throw new CommandException();
             case (1):
-                cmd = argsCLIArr[0];
+                cmd = argsCliArr[0];
                 secondArg = " ";
                 break;
 
             default:
-                cmd = argsCLIArr[0];
-                secondArg = argsCLIArr[1];
+                cmd = argsCliArr[0];
+                secondArg = argsCliArr[1];
         }
 
         if ((cmd.length()) == (0))
@@ -110,40 +113,40 @@ public class Kento {
     private static void executeCmd() throws TodoException {
         switch (cmd.toLowerCase()) {
 
-            case ("bye"):
-                cmdBye(); // static method, so this.cmdBye() is unnecessary
+            case "bye":
+                executeCmdBye(); // static method, so this.executeCmdBye() is unnecessary
                 break;
-            case ("list"):
-                cmdList();
-                break;
-
-            case ("mark"):
-                cmdMark();
-                break;
-            case ("unmark"):
-                cmdUnmark();
+            case "list":
+                executeCmdList();
                 break;
 
-            case ("deadline"):
-                cmdDeadline();
+            case "mark":
+                executeCmdMark();
+                break;
+            case "unmark":
+                executeCmdUnmark();
                 break;
 
-            case ("event"):
-                cmdEvent();
+            case "deadline":
+                executeCmdDeadline();
                 break;
 
-            case ("todo"):
-                cmdTodo();
+            case "event":
+                executeCmdEvent();
+                break;
+
+            case "todo":
+                executeCmdTodo();
                 break;
 
             default:
-                cmdDefault();
+                executeCmdDefault();
                 break;
         }
 
     }
 
-    private static void cmdBye() {
+    private static void executeCmdBye() {
         System.out.print("""
                 ____________________________________________________________
                  Bye, don't come back without more money!
@@ -152,9 +155,10 @@ public class Kento {
         isRunning = false;
     }
 
-    private static void cmdList() {
+    private static void executeCmdList() {
         System.out.println("____________________________________________________________\n");
 
+        // TODO: Move to commands classes tostring.
         for (int i = 0; i < taskIdx; i++) {
             System.out.println(Integer.toString(i + 1) + ". [" + tasks[i].getStatusIcon() + "]"
                     + tasks[i].getDescription());
@@ -163,7 +167,7 @@ public class Kento {
 
     }
 
-    private static void cmdMark() throws IndexOutOfBoundsException {
+    private static void executeCmdMark() throws IndexOutOfBoundsException {
         System.out.println(
                 "____________________________________________________________");
 
@@ -176,7 +180,7 @@ public class Kento {
         System.out.println("____________________________________________________________");
     }
 
-    private static void cmdUnmark() throws IndexOutOfBoundsException {
+    private static void executeCmdUnmark() throws IndexOutOfBoundsException {
         System.out.println(
                 "____________________________________________________________");
 
@@ -190,14 +194,14 @@ public class Kento {
         System.out.println("____________________________________________________________");
     }
 
-    private static void cmdDeadline() {
-        task = argsCLIArrSlash[0].substring(9).strip();
-        String by = argsCLIArrSlash[1].substring(2).strip();
+    private static void executeCmdDeadline() {
+        task = argsCliArrSlash[0].substring(9).strip();
+        String by = argsCliArrSlash[1].substring(2).strip();
         tasks[taskIdx] = new Deadline(task, by);
         taskIdx++;
     }
 
-    private static void cmdTodo() throws TodoException {
+    private static void executeCmdTodo() throws TodoException {
         task = argsCLI.substring(5).strip();
         if (task.length() == 0)
             throw new TodoException();
@@ -205,10 +209,10 @@ public class Kento {
         taskIdx++;
     }
 
-    private static void cmdEvent() {
-        task = argsCLIArrSlash[0].substring(6).strip();
-        String from = argsCLIArrSlash[1].substring(4).strip();
-        String to = argsCLIArrSlash[2].substring(2).strip();
+    private static void executeCmdEvent() {
+        task = argsCliArrSlash[0].substring(6).strip();
+        String from = argsCliArrSlash[1].substring(4).strip();
+        String to = argsCliArrSlash[2].substring(2).strip();
         tasks[taskIdx] = new Event(task, from, to);
         taskIdx++;
     }
@@ -231,7 +235,7 @@ public class Kento {
         System.out.println(greeting);
     }
 
-    private static void cmdDefault() {
+    private static void executeCmdDefault() {
         System.out.print(String.format("""
 
                 ____________________________________________________________
