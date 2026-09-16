@@ -9,4 +9,8 @@ public class Todo extends Task {
     public String getTaskIcon() {
         return "T";
     }
+
+    public String getTaskFile() {
+        return getTaskIcon() + "|" + getStatusIcon() + "|" + getDescription();
+    }
 }

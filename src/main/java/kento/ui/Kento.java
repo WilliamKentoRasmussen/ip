@@ -9,6 +9,11 @@ import kento.commands.Todo;
 import kento.exception.CommandException;
 import kento.exception.TodoException;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Arrays;
 
 public class Kento {
@@ -31,6 +36,7 @@ public class Kento {
     public static final String ANSI_CYAN = "\u001B[36m";
 
     private static final int MAX_TASKS = 100;
+    private static final Path FILEPATH = Path.of("./data/kento.txt");
 
     private static Task[] tasks = new Task[MAX_TASKS];
     private static Task t;
@@ -40,9 +46,47 @@ public class Kento {
 
     private static boolean isRunning = true;
 
+    public static String readTasksFile() {
+
+        try {
+            // Reads the entire file into a single String
+            String content = Files.readString(FILEPATH);
+
+            if (content != null) {
+                return content;
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return "";
+    }
+
     public static void main(String[] args) {
 
         kentoGreeting();
+
+        String content = readTasksFile();
+        String[] lines = content.split("\n");
+        for (String line : lines) {
+            String[] lineArgs = line.split("|");
+
+            switch (lineArgs[0]){
+                case "T":
+
+                    //tasks.add(new Todo(lineArgs[2]));
+
+                    if (lineArgs[1]==1){
+                        tasks[index].mark;
+                    }
+
+                case "D":
+
+                case "E":
+            }
+        
+            
+        }
 
         Scanner in = new Scanner(System.in);
 
@@ -83,6 +127,13 @@ public class Kento {
                      Please provide a passable number instead of string.
                     ____________________________________________________________
                                     """ + ANSI_RESET);
+        } catch (IOException e) {
+
+            System.out.print(ANSI_RED + """
+                    ____________________________________________________________
+                     File path not found
+                    ____________________________________________________________
+                                    """ + ANSI_RESET);
         }
 
     }
@@ -110,7 +161,7 @@ public class Kento {
             throw new CommandException();
     }
 
-    private static void executeCmd() throws TodoException {
+    private static void executeCmd() throws TodoException, IOException {
         switch (cmd.toLowerCase()) {
 
             case "bye":
@@ -146,7 +197,24 @@ public class Kento {
 
     }
 
-    private static void executeCmdBye() {
+    private static String getTasksFile() {
+
+        String tasksFile = "";
+        for (Task task : tasks) {
+
+            // Make a custom in each command class
+            tasksFile += task.getTaskIcon() + "|" + task.getStatusIcon() + "|" + task.getDescription() + "\n";
+        }
+        return tasksFile;
+
+    }
+
+    private static void executeCmdBye() throws IOException {
+
+        FileWriter fw = new FileWriter(FILEPATH);
+        fw.write(getTasksFile());
+        fw.close();
+
         System.out.print("""
                 ____________________________________________________________
                  Bye, don't come back without more money!

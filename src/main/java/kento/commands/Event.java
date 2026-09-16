@@ -21,4 +21,8 @@ public class Event extends Task {
     public String getTaskIcon() {
         return "E";
     }
+
+    public String getTaskFile() {
+        return getTaskIcon() + "|" + getStatusIcon() + "|" + this.description + "|" + this.to + "|" + this.from;
+    }
 }
