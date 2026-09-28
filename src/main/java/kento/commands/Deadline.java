@@ -1,9 +1,12 @@
 package kento.commands;
 
-public class Deadline extends Task {
-    private String by;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
-    public Deadline(String description, String by) {
+public class Deadline extends Task {
+    private LocalDate by;
+
+    public Deadline(String description, LocalDate by) {
         super(description);
         this.by = by;
 
@@ -11,7 +14,7 @@ public class Deadline extends Task {
 
     @Override
     public String getDescription() {
-        return String.format("%s (by: %s)", this.description, this.by);
+        return String.format("%s (by: %s)", this.description, by.format(DateTimeFormatter.ofPattern("MMM d yyyy")));
     }
 
     @Override
@@ -26,6 +29,7 @@ public class Deadline extends Task {
 
     @Override
     public String getTaskFile() {
-        return getTaskIcon() + "|" + getStatusIcon() + "|" + this.description + "|" + this.by;
+        return getTaskIcon() + "|" + getStatusIcon() + "|" + this.description + "|" + by
+                .format(DateTimeFormatter.ofPattern("MMM d yyyy"));
     }
 }

@@ -1,11 +1,14 @@
 package kento.commands;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+
 public class Event extends Task {
 
-    private String from;
-    private String to;
+    private LocalDate from;
+    private LocalDate to;
 
-    public Event(String description, String from, String to) {
+    public Event(String description, LocalDate from, LocalDate to) {
         super(description);
         this.from = from;
         this.to = to;
@@ -14,7 +17,10 @@ public class Event extends Task {
 
     @Override
     public String getDescription() {
-        return String.format("%s (from: %s to: %s )", this.description, this.from, this.to);
+        return String.format("%s (from: %s to: %s )", this.description, from
+                .format(DateTimeFormatter.ofPattern("MMM d yyyy")),
+                to
+                        .format(DateTimeFormatter.ofPattern("MMM d yyyy")));
     }
 
     @Override

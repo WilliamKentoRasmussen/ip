@@ -32,7 +32,8 @@ public class Parser {
     public static String[] parseDeadlineArguments(String args) throws CommandException {
         String[] argsList = args.split("/by");
 
-        if (argsList.length < 2 || argsList[0].strip().isEmpty() || argsList[1].strip().isEmpty()) {
+        if (argsList.length < 1 || argsList[0].strip().isEmpty() || argsList[1].strip().isEmpty()) {
+            System.out.print("deadline error");
             throw new CommandException();
         }
 
@@ -64,6 +65,8 @@ public class Parser {
         String[] toSplit = fromSplit[1].split("/to");
 
         if (toSplit.length < 2 || toSplit[0].strip().isEmpty() || toSplit[1].strip().isEmpty()) {
+
+            System.out.print("event error");
             throw new CommandException();
         }
 
