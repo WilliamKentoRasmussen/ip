@@ -151,6 +151,10 @@ public class Kento {
                 executeCmdTodo();
                 break;
 
+            case "find":
+                executeCmdFind();
+                break;
+
             default:
                 executeCmdDefault();
                 break;
@@ -179,6 +183,22 @@ public class Kento {
             // TODO: Move to commands classes tostring.
             System.out.println(Integer.toString(i) + ". [" + task.getStatusIcon() + "]"
                     + task.getDescription());
+        }
+        System.out.println("____________________________________________________________");
+
+    }
+
+    private static void executeCmdFind() {
+        System.out.println("____________________________________________________________\n");
+        System.out.println("These match your search word");
+        int i = 0;
+        for (Task task : taskList.getTasks()) {
+            if (task.getDescription().contains(args)) {
+                i++;
+                System.out.println(Integer.toString(i) + ". [" + task.getStatusIcon() + "]"
+                        + task.getDescription());
+
+            }
         }
         System.out.println("____________________________________________________________");
 
