@@ -19,6 +19,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 import java.util.Arrays;
 
 public class Kento {
@@ -107,6 +109,7 @@ public class Kento {
                      Please provide a passable number instead of string.
                     ____________________________________________________________
                                     """ + ANSI_RESET);
+
         } catch (IOException e) {
 
             System.out.print(ANSI_RED + """
@@ -114,8 +117,15 @@ public class Kento {
                      File path not found
                     ____________________________________________________________
                                     """ + ANSI_RESET);
-        }
+        } catch (DateTimeParseException e) {
 
+            System.out.print(ANSI_RED + """
+                    ____________________________________________________________
+                     Wrong date
+                    ____________________________________________________________
+                                    """ + ANSI_RESET);
+
+        }
     }
 
     private static void executeCmd() throws TodoException, IOException, CommandException {
@@ -228,9 +238,11 @@ public class Kento {
         System.out.println("____________________________________________________________");
     }
 
-    private static void executeCmdDeadline() throws CommandException {
-        String[] parseRes = parser.parseEventArguments(args);
-        taskList.addTask(new Deadline(parseRes[0], parseRes[1]));
+    private static void executeCmdDeadline() throws CommandException, DateTimeParseException {
+        String[] parseRes = parser.parseDeadlineArguments(args);
+        LocalDate by = LocalDate.parse(parseRes[1]);
+
+        taskList.addTask(new Deadline(parseRes[0], by));
     }
 
     private static void executeCmdTodo() throws TodoException, CommandException {
@@ -240,9 +252,12 @@ public class Kento {
         taskList.addTask(new Todo(task));
     }
 
-    private static void executeCmdEvent() throws CommandException {
+    private static void executeCmdEvent() throws CommandException, DateTimeParseException {
         String[] parseRes = parser.parseEventArguments(args);
-        taskList.addTask(new Event(parseRes[0], parseRes[1], parseRes[2]));
+
+        LocalDate from = LocalDate.parse(parseRes[1]);
+        LocalDate to = LocalDate.parse(parseRes[2]);
+        taskList.addTask(new Event(parseRes[0], from, to));
     }
 
     private static void executeCmdDefault() {

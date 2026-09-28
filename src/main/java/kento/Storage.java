@@ -5,6 +5,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.LocalDate;
 import java.util.ArrayList;
 
 import kento.commands.Deadline;
@@ -61,10 +62,10 @@ public class Storage {
                         newTask = new Todo(taskArgs[2]);
                         break;
                     case "D":
-                        newTask = new Deadline(taskArgs[2], taskArgs[3]);
+                        newTask = new Deadline(taskArgs[2], LocalDate.parse(taskArgs[3]));
                         break;
                     case "E":
-                        newTask = new Event(taskArgs[2], taskArgs[3], taskArgs[4]);
+                        newTask = new Event(taskArgs[2], LocalDate.parse(taskArgs[3]), LocalDate.parse(taskArgs[4]));
                         break;
                     default:
                         System.err.println("Unknown task type: " + taskArgs[0]);
