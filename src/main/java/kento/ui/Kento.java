@@ -51,6 +51,10 @@ public class Kento {
     private static TaskList taskList;
     private static Parser parser;
 
+    public static void main(String[] args) {
+        new Kento().run();
+    }
+
     public Kento() {
         storage = new Storage(FILEPATH);
         ui = new Ui();
@@ -66,10 +70,6 @@ public class Kento {
         while (isRunning) {
             runWithErrorHandling();
         }
-    }
-
-    public static void main(String[] args) {
-        new Kento().run();
     }
 
     private static void runWithErrorHandling() {
