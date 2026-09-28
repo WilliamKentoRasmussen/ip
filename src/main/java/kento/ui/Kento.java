@@ -2,6 +2,10 @@ package kento.ui;
 
 import java.util.Scanner;
 
+import kento.Storage;
+import kento.TaskList;
+import kento.Ui;
+import kento.Parser;
 import kento.commands.Deadline;
 import kento.commands.Event;
 import kento.commands.Task;
@@ -19,11 +23,9 @@ import java.util.Arrays;
 
 public class Kento {
     private static String cmd;
+    private static String args;
+    private static String input;
     private static String task;
-    private static String secondArg;
-    private static String argsCLI;
-    private static String[] argsCliArr;
-    private static String[] argsCliArrSlash;
 
     // Prints
     public static final String PAGE_LINE = "____________________________________________________________";
@@ -36,7 +38,6 @@ public class Kento {
     public static final String ANSI_BLUE = "\u001B[34m";
     public static final String ANSI_CYAN = "\u001B[36m";
 
-    private static ArrayList<Task> tasks = new ArrayList<>();
     private static final Path FILEPATH = Path.of("./data/kento.txt");
 
     private static Task t;
@@ -45,107 +46,39 @@ public class Kento {
 
     private static boolean isRunning = true;
 
-    public static String readTasksFiles() {
+    private static Storage storage;
+    private static Ui ui;
+    private static TaskList taskList;
+    private static Parser parser;
 
-        try {
-            // Reads the entire file into a single String
-            String content = Files.readString(FILEPATH);
-
-            return content; // Either string or empty
-
-        } catch (IOException e) {
-            e.printStackTrace();
-            return "";
-        }
-
+    public Kento() {
+        storage = new Storage(FILEPATH);
+        ui = new Ui();
+        taskList = new TaskList();
+        parser = new Parser();
     }
 
-    public static void loadTasksFiles() {
+    public static void run() {
 
-        if (!FILEPATH.toFile().exists()) {
-            return;
-        }
+        ui.showKentoGreeting();
+        storage.loadTasksFiles(taskList.getTasks());
 
-        String content = readTasksFiles();
-        if (content.isEmpty()) {
-            return;
-        }
-        String[] lines = content.split("\n");
-        String[] taskArgs;
-
-        for (String line : lines) {
-            taskArgs = line.split("\\|");
-            if (taskArgs.length < 2) {
-                continue;
-            }
-            try {
-                Task newTask = null;
-                switch (taskArgs[0]) {
-                    case "T":
-                        newTask = new Todo(taskArgs[2]);
-                        break;
-                    case "D":
-                        newTask = new Deadline(taskArgs[2], taskArgs[3]);
-                        break;
-                    case "E":
-                        newTask = new Event(taskArgs[2], taskArgs[3], taskArgs[4]);
-                        break;
-                    default:
-                        System.err.println("Unknown task type: " + taskArgs[0]);
-                        continue;
-                }
-                if (taskArgs[1].equals("X")) {
-                    newTask.setIsDone(true);
-                }
-                tasks.add(newTask);
-            } catch (Exception e) {
-                System.err.println(e);
-            }
-        }
-    }
-
-    private static String getTasksFiles() {
-
-        String tasksFile = "";
-        for (int i = 0; i < tasks.size(); i++) {
-            t = tasks.get(i);
-            // Make a custom in each command class
-            tasksFile += t.getTaskFile() + "\n";
-        }
-        return tasksFile;
-
-    }
-
-    public static void writeTasksFiles() {
-
-        FileWriter fw = null;
-        try {
-            File dir = FILEPATH.getParent().toFile();
-            dir.mkdirs();
-            fw = new FileWriter(FILEPATH.toFile());
-            fw.write(getTasksFiles());
-            fw.close();
-        } catch (IOException e) {
-            e.printStackTrace();
+        while (isRunning) {
+            runWithErrorHandling();
         }
     }
 
     public static void main(String[] args) {
-
-        kentoGreeting();
-        loadTasksFiles();
-
-        Scanner in = new Scanner(System.in);
-
-        while (isRunning) {
-            runKentoWithErrorHandling(in);
-
-        }
+        new Kento().run();
     }
 
-    private static void runKentoWithErrorHandling(Scanner in) {
+    private static void runWithErrorHandling() {
         try {
-            parseCLI(in);
+            Scanner in = new Scanner(System.in);
+            input = in.nextLine();
+            cmd = parser.parseCommand(input);
+            args = parser.parseArguments(input);
+
             executeCmd();
         } catch (CommandException e) {
 
@@ -185,31 +118,8 @@ public class Kento {
 
     }
 
-    private static void parseCLI(Scanner in) throws CommandException {
-        // TODO: Make a parser class
-        argsCLI = in.nextLine();
-        argsCliArr = argsCLI.split(" ");
-        argsCliArrSlash = argsCLI.split("/");
-
-        switch (argsCliArr.length) {
-            case (0):
-                throw new CommandException();
-            case (1):
-                cmd = argsCliArr[0];
-                secondArg = " ";
-                break;
-
-            default:
-                cmd = argsCliArr[0];
-                secondArg = argsCliArr[1];
-        }
-
-        if ((cmd.length()) == (0))
-            throw new CommandException();
-    }
-
-    private static void executeCmd() throws TodoException, IOException {
-        switch (cmd.toLowerCase()) {
+    private static void executeCmd() throws TodoException, IOException, CommandException {
+        switch (cmd) {
 
             case "bye":
                 executeCmdBye(); // static method, so this.executeCmdBye() is unnecessary
@@ -250,7 +160,7 @@ public class Kento {
 
     private static void executeCmdBye() throws IOException {
 
-        writeTasksFiles();
+        storage.writeTasksFiles(taskList.getTasks());
 
         System.out.print("""
                 ____________________________________________________________
@@ -264,7 +174,7 @@ public class Kento {
         System.out.println("____________________________________________________________\n");
 
         int i = 0;
-        for (Task task : tasks) {
+        for (Task task : taskList.getTasks()) {
             i++;
             // TODO: Move to commands classes tostring.
             System.out.println(Integer.toString(i) + ". [" + task.getStatusIcon() + "]"
@@ -274,82 +184,65 @@ public class Kento {
 
     }
 
-    private static void executeCmdDelete() throws IndexOutOfBoundsException {
+    private static void executeCmdDelete() throws IndexOutOfBoundsException, CommandException {
         System.out.println(PAGE_LINE);
 
-        inputTaskIdx = Integer.parseInt(secondArg) - 1;
-        if (inputTaskIdx >= tasks.size())
+        inputTaskIdx = parser.parseIndexArgument(args);
+
+        if (inputTaskIdx >= taskList.getTasksSize())
             throw new IndexOutOfBoundsException();
-        t = tasks.get(inputTaskIdx);
+
+        t = taskList.getTaskByIndex(inputTaskIdx);
 
         System.out.println("Removed \n[" + t.getStatusIcon() + "] " + t.getDescription());
-        tasks.remove(inputTaskIdx);
+        taskList.removeTaskByIndex(inputTaskIdx);
         System.out.println(PAGE_LINE);
     }
 
-    private static void executeCmdMark() throws IndexOutOfBoundsException {
+    private static void executeCmdMark() throws IndexOutOfBoundsException, CommandException {
         System.out.println(
                 "____________________________________________________________");
 
-        inputTaskIdx = Integer.parseInt(secondArg) - 1;
-        if (inputTaskIdx >= tasks.size())
+        inputTaskIdx = parser.parseIndexArgument(args);
+
+        if (inputTaskIdx >= taskList.getTasksSize())
             throw new IndexOutOfBoundsException();
-        t = tasks.get(inputTaskIdx);
+        t = taskList.getTaskByIndex(inputTaskIdx);
         t.setIsDone(true);
         System.out.println("Marked task\n[" + t.getStatusIcon() + "] " + t.getDescription());
         System.out.println("____________________________________________________________");
     }
 
-    private static void executeCmdUnmark() throws IndexOutOfBoundsException {
+    private static void executeCmdUnmark() throws IndexOutOfBoundsException, CommandException {
         System.out.println(
                 "____________________________________________________________");
 
-        inputTaskIdx = Integer.parseInt(secondArg) - 1;
-        if (inputTaskIdx >= tasks.size())
+        inputTaskIdx = parser.parseIndexArgument(args);
+
+        if (inputTaskIdx >= taskList.getTasksSize())
             throw new IndexOutOfBoundsException();
 
-        t = tasks.get(inputTaskIdx);
+        t = taskList.getTaskByIndex(inputTaskIdx);
         t.setIsDone(false);
         System.out.println("Unmarked task\n[" + t.getStatusIcon() + "] " + t.getDescription());
         System.out.println("____________________________________________________________");
     }
 
-    private static void executeCmdDeadline() {
-        task = argsCliArrSlash[0].substring(9).strip();
-        String by = argsCliArrSlash[1].substring(2).strip();
-        tasks.add(new Deadline(task, by));
+    private static void executeCmdDeadline() throws CommandException {
+        String[] parseRes = parser.parseEventArguments(args);
+        taskList.addTask(new Deadline(parseRes[0], parseRes[1]));
     }
 
-    private static void executeCmdTodo() throws TodoException {
-        task = argsCLI.substring(5).strip();
+    private static void executeCmdTodo() throws TodoException, CommandException {
+        task = parser.parseTodoArguments(args);
         if (task.length() == 0)
             throw new TodoException();
-        tasks.add(new Todo(task));
+        taskList.addTask(new Todo(task));
     }
 
-    private static void executeCmdEvent() {
-        task = argsCliArrSlash[0].substring(6).strip();
-        String from = argsCliArrSlash[1].substring(4).strip();
-        String to = argsCliArrSlash[2].substring(2).strip();
-        tasks.add(new Event(task, from, to));
-    }
-
-    private static void kentoGreeting() {
-        String banner = " _  __         ____  ___      \n"
-                + "| |/ /___ _ __|_  _|/   \\\n"
-                + "| ' // _ \\ '_ \\| | / (_) |\n"
-                + "|   \\  __/ | | | | \\    |\n"
-                + "|_|\\_\\___|_| |_|_|\\_\\___/\n";
-
-        String greeting = """
-                ____________________________________________________________
-                What is the service you are willing to pay the most for?
-                ____________________________________________________________
-                """;
-
-        System.out.println("Welcome to");
-        System.out.println(banner);
-        System.out.println(greeting);
+    private static void executeCmdEvent() throws CommandException {
+        String[] parseRes = parser.parseEventArguments(args);
+        taskList.addTask(new Event(parseRes[0], parseRes[1], parseRes[2]));
     }
 
     private static void executeCmdDefault() {
