@@ -40,7 +40,7 @@ public class Kento {
     public static final String ANSI_BLUE = "\u001B[34m";
     public static final String ANSI_CYAN = "\u001B[36m";
 
-    private static final Path FILEPATH = Path.of("./data/kento.txt");
+    private static final Path FILEPATH = Path.of("./.data/kento.txt");
 
     private static Task t;
 

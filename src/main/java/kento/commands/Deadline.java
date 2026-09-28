@@ -36,7 +36,6 @@ public class Deadline extends Task {
 
     @Override
     public String getTaskFile() {
-        return getTaskIcon() + "|" + getStatusIcon() + "|" + this.description + "|" + by
-                .format(DateTimeFormatter.ofPattern("MMM d yyyy"));
+        return getTaskIcon() + "|" + getStatusIcon() + "|" + this.description + "|" + this.by;
     }
 }
