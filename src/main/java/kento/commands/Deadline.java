@@ -18,4 +18,14 @@ public class Deadline extends Task {
     public String getTaskIcon() {
         return "D";
     }
+
+    @Override
+    public String toString() {
+        return String.format("[%s] %s)", this.getStatusIcon(), this.getDescription());
+    }
+
+    @Override
+    public String getTaskFile() {
+        return getTaskIcon() + "|" + getStatusIcon() + "|" + this.description + "|" + this.by;
+    }
 }

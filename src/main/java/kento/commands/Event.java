@@ -22,6 +22,12 @@ public class Event extends Task {
         return "E";
     }
 
+    @Override
+    public String toString() {
+        return String.format("[%s] %s)", this.getStatusIcon(), this.getDescription());
+    }
+
+    @Override
     public String getTaskFile() {
         return getTaskIcon() + "|" + getStatusIcon() + "|" + this.description + "|" + this.to + "|" + this.from;
     }

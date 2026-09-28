@@ -46,47 +46,101 @@ public class Kento {
 
     private static boolean isRunning = true;
 
-    public static String readTasksFile() {
+    public static String readTasksFiles() {
 
         try {
             // Reads the entire file into a single String
             String content = Files.readString(FILEPATH);
 
-            if (content != null) {
-                return content;
-            }
+            return content; // Either string or empty
 
         } catch (IOException e) {
             e.printStackTrace();
+            return "";
         }
-        return "";
+
+    }
+
+    public static void loadTasksFiles() {
+
+        if (!FILEPATH.toFile().exists()) {
+            return;
+        }
+
+        String content = readTasksFiles();
+        if (content.isEmpty()) {
+            taskIdx = 0;
+            return;
+        }
+        String[] lines = content.split("\n");
+
+        String[] taskArgs;
+        taskIdx = lines.length;
+
+        int loadedCount = 0;
+        for (int lineIdx = 0; lineIdx < lines.length; lineIdx++) {
+            taskArgs = lines[lineIdx].split("\\|");
+            if (taskArgs.length < 2) {
+                continue;
+            }
+            try {
+                Task newTask = null;
+                switch (taskArgs[0]) {
+                    case "T":
+                        newTask = new Todo(taskArgs[2]);
+                        break;
+                    case "D":
+                        newTask = new Deadline(taskArgs[2], taskArgs[3]);
+                        break;
+                    case "E":
+                        newTask = new Event(taskArgs[2], taskArgs[3], taskArgs[4]);
+                        break;
+                    default:
+                        System.err.println("Unknown task type: " + taskArgs[0]);
+                        continue;
+                }
+                if (taskArgs[1].equals("X")) {
+                    newTask.setIsDone(true);
+                }
+                tasks[loadedCount] = newTask;
+                loadedCount++;
+            } catch (Exception e) {
+                System.err.println(e);
+            }
+        }
+        taskIdx = loadedCount;
+    }
+
+    private static String getTasksFiles() {
+
+        String tasksFile = "";
+        for (int i = 0; i < taskIdx; i++) {
+            t = tasks[i];
+            // Make a custom in each command class
+            tasksFile += t.getTaskFile() + "\n";
+        }
+        return tasksFile;
+
+    }
+
+    public static void writeTasksFiles() {
+
+        FileWriter fw = null;
+        try {
+            File dir = FILEPATH.getParent().toFile();
+            dir.mkdirs();
+            fw = new FileWriter(FILEPATH.toFile());
+            fw.write(getTasksFiles());
+            fw.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public static void main(String[] args) {
 
         kentoGreeting();
-
-        String content = readTasksFile();
-        String[] lines = content.split("\n");
-        for (String line : lines) {
-            String[] lineArgs = line.split("|");
-
-            switch (lineArgs[0]){
-                case "T":
-
-                    //tasks.add(new Todo(lineArgs[2]));
-
-                    if (lineArgs[1]==1){
-                        tasks[index].mark;
-                    }
-
-                case "D":
-
-                case "E":
-            }
-        
-            
-        }
+        loadTasksFiles();
 
         Scanner in = new Scanner(System.in);
 
@@ -197,23 +251,9 @@ public class Kento {
 
     }
 
-    private static String getTasksFile() {
-
-        String tasksFile = "";
-        for (Task task : tasks) {
-
-            // Make a custom in each command class
-            tasksFile += task.getTaskIcon() + "|" + task.getStatusIcon() + "|" + task.getDescription() + "\n";
-        }
-        return tasksFile;
-
-    }
-
     private static void executeCmdBye() throws IOException {
 
-        FileWriter fw = new FileWriter(FILEPATH);
-        fw.write(getTasksFile());
-        fw.close();
+        writeTasksFiles();
 
         System.out.print("""
                 ____________________________________________________________

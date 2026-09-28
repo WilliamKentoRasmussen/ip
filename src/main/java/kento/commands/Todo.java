@@ -10,7 +10,14 @@ public class Todo extends Task {
         return "T";
     }
 
+    @Override
     public String getTaskFile() {
         return getTaskIcon() + "|" + getStatusIcon() + "|" + getDescription();
     }
+
+    @Override
+    public String toString() {
+        return String.format("[%s] %s)", this.getStatusIcon(), this.getDescription());
+    }
+
 }
