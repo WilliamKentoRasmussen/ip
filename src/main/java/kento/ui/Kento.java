@@ -53,18 +53,23 @@ public class Kento {
     private static TaskList taskList;
     private static Parser parser;
 
+    /**
+     * create instance of Kento Class and runs the cli loop
+     * 
+     * @param args given in the cli
+     */
     public static void main(String[] args) {
         new Kento().run();
     }
 
-    public Kento() {
+    private Kento() {
         storage = new Storage(FILEPATH);
         ui = new Ui();
         taskList = new TaskList();
         parser = new Parser();
     }
 
-    public static void run() {
+    private static void run() {
 
         ui.showKentoGreeting();
         storage.loadTasksFiles(taskList.getTasks());

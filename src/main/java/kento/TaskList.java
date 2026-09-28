@@ -8,14 +8,18 @@ public class TaskList {
 
     private static ArrayList<Task> tasks = new ArrayList<>();
 
-    public TaskList() {
-
-    }
-
+    /**
+     * @return tasks arraylist
+     */
     public static ArrayList<Task> getTasks() {
         return tasks;
     }
 
+    /**
+     * Add task to arraylist
+     * 
+     * @param task task you want to add
+     */
     public static void addTask(Task task) {
         tasks.add(task);
     }

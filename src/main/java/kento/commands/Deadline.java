@@ -12,6 +12,13 @@ public class Deadline extends Task {
 
     }
 
+    /**
+     * (non-Javadoc)
+     * Returns the deadline starting with task description and then date formatted
+     * with pattern month day year
+     * 
+     * @see kento.commands.Task#getDescription()
+     */
     @Override
     public String getDescription() {
         return String.format("%s (by: %s)", this.description, by.format(DateTimeFormatter.ofPattern("MMM d yyyy")));

@@ -18,9 +18,20 @@ public class Storage {
     private static Path filepath;
     private static Task t;
 
+    /**
+     * Stores path when instance of storage is created
+     * 
+     * @param path
+     */
     public Storage(Path path) {
         filepath = path;
     }
+
+    /**
+     * reads filepath file content
+     * 
+     * @return content of file
+     */
 
     public static String readTasksFiles() {
 
@@ -37,6 +48,11 @@ public class Storage {
 
     }
 
+    /**
+     * Create instance of ToDo Event and Deadline and adds them to tasks arraylist
+     * 
+     * @param tasks the arraylist that all tasks should be uploaded to
+     */
     public static void loadTasksFiles(ArrayList<Task> tasks) {
 
         if (!filepath.toFile().exists()) {
@@ -81,6 +97,12 @@ public class Storage {
         }
     }
 
+    /**
+     * create a string with descriptions of all tasks
+     * 
+     * @param tasks arraylist of task
+     * @return tasksFile
+     */
     private static String getTasksFiles(ArrayList<Task> tasks) {
 
         String tasksFile = "";
@@ -93,6 +115,11 @@ public class Storage {
 
     }
 
+    /**
+     * write task files onto filepath file
+     * 
+     * @param tasks gets the tasks
+     */
     public static void writeTasksFiles(ArrayList<Task> tasks) {
 
         FileWriter fw = null;

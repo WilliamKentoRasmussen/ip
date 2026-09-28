@@ -6,6 +6,9 @@ public class Ui {
 
     }
 
+    /**
+     * prints out Kento Greeting
+     */
     public void showKentoGreeting() {
         String banner = " _  __         ____  ___      \n"
                 + "| |/ /___ _ __|_  _|/   \\\n"

@@ -4,9 +4,13 @@ import kento.exception.CommandException;
 
 public class Parser {
 
-    public Parser() {
-    }
-
+    /**
+     * Extracts first word as command from input string
+     * 
+     * @param input cli input
+     * @return command
+     * @throws CommandException when the input is empty
+     */
     public static String parseCommand(String input) throws CommandException {
         if (input == null || input.strip().isEmpty()) {
             throw new CommandException();
@@ -17,6 +21,12 @@ public class Parser {
         return cmd.toLowerCase();
     }
 
+    /**
+     * Parses the args string from the cli input
+     * 
+     * @param input cli text
+     * @return args without command
+     */
     public static String parseArguments(String input) {
         int spaceIdx = input.indexOf(" ");
         if (spaceIdx == -1) {
@@ -25,10 +35,23 @@ public class Parser {
         return input.substring(spaceIdx + 1).strip();
     }
 
+    /**
+     * parses a index integer from argument string
+     * 
+     * @param args extracted with parseArguments
+     * @return
+     */
     public static int parseIndexArgument(String args) {
         return Integer.parseInt(args.strip()) - 1;
     }
 
+    /**
+     * parses task and by date from input arguments
+     * 
+     * @param args input arguments
+     * @return task and by
+     * @throws CommandException when by or task is empty
+     */
     public static String[] parseDeadlineArguments(String args) throws CommandException {
         String[] argsList = args.split("/by");
 
@@ -43,6 +66,13 @@ public class Parser {
         return new String[] { task, by };
     }
 
+    /**
+     * parses task, from and to date from input arguments
+     * 
+     * @param args input arguments
+     * @return task, from and to
+     * @throws CommandException when from, to or task is empty
+     */
     public static String parseTodoArguments(String args) throws CommandException {
         String task = args.strip();
 
