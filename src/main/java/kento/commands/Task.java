@@ -26,8 +26,16 @@ public class Task {
         return "T";
     }
 
+    public String toString() {
+        return String.format("[%s] %s)", this.getStatusIcon(), this.getDescription());
+    }
+
     public String getDescription() {
         return this.description; // mark done task with X
+    }
+
+    public String getTaskFile() {
+        return getTaskIcon() + "|" + getStatusIcon() + "|" + this.description;
     }
 
 }

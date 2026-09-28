@@ -10,6 +10,11 @@ import kento.exception.CommandException;
 import kento.exception.TodoException;
 
 import java.util.ArrayList;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Arrays;
 
 public class Kento {
@@ -32,6 +37,7 @@ public class Kento {
     public static final String ANSI_CYAN = "\u001B[36m";
 
     private static ArrayList<Task> tasks = new ArrayList<>();
+    private static final Path FILEPATH = Path.of("./data/kento.txt");
 
     private static Task t;
 
@@ -39,9 +45,95 @@ public class Kento {
 
     private static boolean isRunning = true;
 
+    public static String readTasksFiles() {
+
+        try {
+            // Reads the entire file into a single String
+            String content = Files.readString(FILEPATH);
+
+            return content; // Either string or empty
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            return "";
+        }
+
+    }
+
+    public static void loadTasksFiles() {
+
+        if (!FILEPATH.toFile().exists()) {
+            return;
+        }
+
+        String content = readTasksFiles();
+        if (content.isEmpty()) {
+            return;
+        }
+        String[] lines = content.split("\n");
+        String[] taskArgs;
+
+        for (String line : lines) {
+            taskArgs = line.split("\\|");
+            if (taskArgs.length < 2) {
+                continue;
+            }
+            try {
+                Task newTask = null;
+                switch (taskArgs[0]) {
+                    case "T":
+                        newTask = new Todo(taskArgs[2]);
+                        break;
+                    case "D":
+                        newTask = new Deadline(taskArgs[2], taskArgs[3]);
+                        break;
+                    case "E":
+                        newTask = new Event(taskArgs[2], taskArgs[3], taskArgs[4]);
+                        break;
+                    default:
+                        System.err.println("Unknown task type: " + taskArgs[0]);
+                        continue;
+                }
+                if (taskArgs[1].equals("X")) {
+                    newTask.setIsDone(true);
+                }
+                tasks.add(newTask);
+            } catch (Exception e) {
+                System.err.println(e);
+            }
+        }
+    }
+
+    private static String getTasksFiles() {
+
+        String tasksFile = "";
+        for (int i = 0; i < tasks.size(); i++) {
+            t = tasks.get(i);
+            // Make a custom in each command class
+            tasksFile += t.getTaskFile() + "\n";
+        }
+        return tasksFile;
+
+    }
+
+    public static void writeTasksFiles() {
+
+        FileWriter fw = null;
+        try {
+            File dir = FILEPATH.getParent().toFile();
+            dir.mkdirs();
+            fw = new FileWriter(FILEPATH.toFile());
+            fw.write(getTasksFiles());
+            fw.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     public static void main(String[] args) {
 
         kentoGreeting();
+        loadTasksFiles();
 
         Scanner in = new Scanner(System.in);
 
@@ -82,6 +174,13 @@ public class Kento {
                      Please provide a passable number instead of string.
                     ____________________________________________________________
                                     """ + ANSI_RESET);
+        } catch (IOException e) {
+
+            System.out.print(ANSI_RED + """
+                    ____________________________________________________________
+                     File path not found
+                    ____________________________________________________________
+                                    """ + ANSI_RESET);
         }
 
     }
@@ -109,7 +208,7 @@ public class Kento {
             throw new CommandException();
     }
 
-    private static void executeCmd() throws TodoException {
+    private static void executeCmd() throws TodoException, IOException {
         switch (cmd.toLowerCase()) {
 
             case "bye":
@@ -149,7 +248,10 @@ public class Kento {
 
     }
 
-    private static void executeCmdBye() {
+    private static void executeCmdBye() throws IOException {
+
+        writeTasksFiles();
+
         System.out.print("""
                 ____________________________________________________________
                  Bye, don't come back without more money!
