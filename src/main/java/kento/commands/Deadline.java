@@ -38,4 +38,5 @@ public class Deadline extends Task {
     public String getTaskFile() {
         return getTaskIcon() + "|" + getStatusIcon() + "|" + this.description + "|" + this.by;
     }
+    // Remove when pull request is made
 }
