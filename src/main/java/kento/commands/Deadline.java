@@ -24,6 +24,12 @@ public class Deadline extends Task {
         return String.format("%s (by: %s)", this.description, by.format(DateTimeFormatter.ofPattern("MMM d yyyy")));
     }
 
+    /**
+     * (non-Javadoc)
+     * Return task Icon D for Deadline
+     * 
+     * @see kento.commands.Task#getTaskIcon()
+     */
     @Override
     public String getTaskIcon() {
         return "D";
